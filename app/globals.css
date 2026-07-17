@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #1a1a2e;
+}
+
+@theme inline {
+  --color-cejop-bg: #f0f2fa;
+  --color-cejop-blue-light: #b7bfe7;
+  --color-cejop-blue-secondary: #5267c9;
+  --color-cejop-blue-variant: #2d4bc1;
+  --color-cejop-blue: #2c46bf;
+  --color-cejop-dark: #1a1a2e;
+
+  --font-montserrat: var(--font-montserrat);
+  --font-encode: var(--font-encode);
+  --font-source: var(--font-source);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-source), sans-serif;
+}
+
+/* Custom UI Component Classes mapping to Tailwind */
+.btn-primary {
+  @apply font-montserrat font-semibold text-sm border-2 border-cejop-blue bg-cejop-blue text-white px-6 py-3 tracking-wider transition-all duration-300 inline-flex justify-center items-center rounded-full cursor-pointer hover:bg-cejop-blue-variant hover:-translate-y-0.5 hover:shadow-lg hover:shadow-cejop-blue/40;
+}
+
+.btn-primary-bw {
+  @apply font-montserrat font-bold text-sm border-none bg-white text-black px-6 py-3 tracking-widest uppercase transition-all duration-500 ease-out inline-flex justify-center items-center rounded-full cursor-pointer hover:bg-neutral-100 hover:-translate-y-0.5 hover:scale-102 hover:shadow-lg hover:shadow-white/10;
+}
+
+.btn-outline-bw {
+  @apply font-montserrat font-semibold text-sm border border-white/30 bg-transparent text-white px-6 py-3 tracking-widest uppercase transition-all duration-500 ease-out inline-flex justify-center items-center rounded-full cursor-pointer hover:text-black hover:bg-white hover:border-white hover:-translate-y-0.5;
+}
+
+.section-container {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.section-pad {
+  @apply py-20 md:py-28 lg:py-36;
+}
+
+/* Scroll Animation classes supported by Framer Motion or JS IntersectionObserver */
+.scroll-trigger {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.scroll-trigger.active {
+  opacity: 1;
+  transform: translateY(0);
+}
