@@ -1,27 +1,25 @@
 import Link from "next/link";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import { getEncuentroActivo, getFormularioPublicado } from "@/lib/forms/queries";
-import RenderizadorFormulario from "./RenderizadorFormulario";
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
+import { getEncuentro, getFormularioPublicado } from "@/lib/forms/queries";
+import RenderizadorFormulario from "../../inscribite/RenderizadorFormulario";
 
 export const metadata = {
-  title: "Inscripción | CEJOP Tucumán",
-  description:
-    "Postulate a la próxima edición de CEJOP Tucumán. Formación política e institucional para jóvenes.",
+  title: "Feedback | CEJOP Tucumán",
+  description: "Contanos tu experiencia en el encuentro de CEJOP Tucumán.",
 };
 
 const LOGO =
   "https://www.cejoptucuman.com/_next/static/media/cejop_brand_cropped.58e2cc0e.png";
 
-export default async function InscribitePage() {
-  const encuentro = await getEncuentroActivo();
+export default async function FeedbackPage({ params }) {
+  const { id } = await params;
+  const encuentro = await getEncuentro(id);
   const formulario =
     encuentro && encuentro.encuestas_activas
-      ? await getFormularioPublicado(encuentro.id)
+      ? await getFormularioPublicado(id, "feedback")
       : null;
-  const abierto = Boolean(
-    encuentro?.activo && encuentro?.encuestas_activas && formulario
-  );
+  const abierto = Boolean(encuentro?.encuestas_activas && formulario);
 
   return (
     <>
@@ -38,29 +36,23 @@ export default async function InscribitePage() {
               />
             </Link>
             <h1 className="font-montserrat font-black text-3xl md:text-4xl text-white uppercase tracking-tight">
-              {abierto ? formulario.titulo : "Inscripción"}
+              {abierto ? formulario.titulo : "Feedback"}
             </h1>
-            {abierto && formulario.descripcion ? (
-              <p className="font-source text-white/60 mt-2">
-                {formulario.descripcion}
-              </p>
-            ) : !abierto ? (
-              <p className="font-source text-white/60 mt-2">
-                {encuentro?.nombre ?? "CEJOP Tucumán"}
-              </p>
-            ) : null}
+            <p className="font-source text-white/60 mt-2">
+              {encuentro?.nombre ?? "CEJOP Tucumán"}
+            </p>
           </div>
 
           {abierto ? (
-            <RenderizadorFormulario formulario={formulario} />
+            <RenderizadorFormulario formulario={formulario} tipo="feedback" />
           ) : (
             <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-8 sm:p-12 text-center shadow-2xl">
               <h2 className="font-montserrat font-bold text-xl text-cejop-blue-light mb-3">
-                Las inscripciones están cerradas por ahora
+                La encuesta no está disponible
               </h2>
               <p className="font-source text-white/60 leading-relaxed mb-8 max-w-md mx-auto">
-                En este momento no hay una convocatoria abierta. Seguinos para
-                enterarte cuando se habilite la próxima edición.
+                En este momento no hay una encuesta de feedback abierta para este
+                encuentro.
               </p>
               <Link href="/" className="btn-primary-bw text-xs px-8 py-4 inline-flex">
                 Volver al inicio

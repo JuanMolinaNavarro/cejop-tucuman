@@ -75,7 +75,7 @@ export default function Home() {
                 className="flex flex-col md:flex-row md:items-end gap-2 md:gap-6 md:pl-16 lg:pl-32"
               >
                 <span className="font-montserrat font-black text-5xl sm:text-7xl md:text-8xl lg:text-[7rem] uppercase leading-none tracking-tight text-white drop-shadow-2xl">TRANSFORMÁ</span>
-                <span className="font-source text-sm md:text-base text-white/70 md:mb-2 max-w-xs leading-relaxed">Tu mirada sobre la reality política y social de la provincia.</span>
+                <span className="font-source text-sm md:text-base text-white/70 md:mb-2 max-w-xs leading-relaxed">Tu mirada sobre la realidad política y social de la provincia.</span>
               </motion.div>
             </div>
 

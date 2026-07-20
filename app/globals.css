@@ -56,3 +56,52 @@ body {
   opacity: 1;
   transform: translateY(0);
 }
+
+/* ------------------------------------------------------------------ */
+/* Formulario de inscripción (multi-step) y panel admin               */
+/* ------------------------------------------------------------------ */
+
+.view-section,
+.form-step {
+  @apply w-full;
+}
+
+/* Toggle Sí/No y botones de ranking (Prioridad 1/2/3, Eje 1/2/3) */
+.btn-toggle,
+.btn-rank,
+.btn-rank-axis {
+  @apply border border-white/10 bg-white/5 text-white/70 rounded-lg transition-all duration-200 cursor-pointer inline-flex justify-center items-center hover:border-white/25 hover:bg-white/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-cejop-blue;
+}
+
+.btn-toggle.active,
+.btn-rank.active,
+.btn-rank-axis.active {
+  @apply bg-cejop-blue border-cejop-blue text-white shadow-lg shadow-cejop-blue/30;
+}
+
+/* Botones de selección de prioridades / ejes (grilla) */
+.priority-btn,
+.axis-btn {
+  @apply relative flex items-center min-h-14 border border-white/10 bg-white/5 text-white/75 rounded-lg px-3 py-3 text-xs sm:text-[13px] font-source font-semibold text-left leading-snug transition-all duration-200 cursor-pointer hover:border-white/25 hover:bg-white/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-cejop-blue;
+}
+
+.priority-btn.selected,
+.axis-btn.selected {
+  @apply border-cejop-blue bg-cejop-blue/20 text-white;
+}
+
+/* Badge del ranking (1/2/3) dentro de cada opción seleccionada */
+.badge-rank {
+  @apply absolute -top-2 -right-2 w-6 h-6 rounded-full bg-cejop-blue text-white font-montserrat font-bold text-[11px] flex items-center justify-center shadow-md shadow-cejop-blue/40 ring-2 ring-cejop-dark;
+}
+
+/* Botón toggle base del admin (Sí/No estilos genéricos ya cubiertos arriba) */
+
+/* Ocultar scrollbar horizontal (nav de tabs del admin) */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
