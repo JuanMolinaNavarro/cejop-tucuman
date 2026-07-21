@@ -13,6 +13,7 @@ import {
   Inbox,
   MessageSquare,
   UserCheck,
+  BarChart3,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -167,13 +168,22 @@ export default function EncuentrosManager({ encuentrosIniciales }) {
             </span>
           </div>
         </div>
-        <button
-          onClick={cerrarSesion}
-          className="text-gray-400 hover:text-white transition-colors text-xs font-encode tracking-wider uppercase flex items-center gap-2 border border-white/10 px-4 py-2 rounded-full bg-white/5 cursor-pointer"
-        >
-          <LogOut size={13} />
-          Cerrar sesión
-        </button>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/admin/dashboard"
+            className="text-gray-300 hover:text-white transition-colors text-xs font-encode tracking-wider uppercase flex items-center gap-2 border border-white/10 px-4 py-2 rounded-full bg-white/5"
+          >
+            <BarChart3 size={13} />
+            Dashboard
+          </Link>
+          <button
+            onClick={cerrarSesion}
+            className="text-gray-400 hover:text-white transition-colors text-xs font-encode tracking-wider uppercase flex items-center gap-2 border border-white/10 px-4 py-2 rounded-full bg-white/5 cursor-pointer"
+          >
+            <LogOut size={13} />
+            Cerrar sesión
+          </button>
+        </div>
       </header>
 
       <main className="max-w-4xl mx-auto w-full p-6 md:p-8 space-y-8">

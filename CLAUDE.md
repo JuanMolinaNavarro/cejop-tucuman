@@ -52,8 +52,11 @@ app/
     actions.js           # (server) enviarInscripcion(formularioId, valores): genérico, sirve inscripción y feedback.
   feedback/[id]/page.js  # (server, público) encuesta de feedback (form 'feedback' publicado) del encuentro [id].
   admin/
-    page.js              # (client) Login Supabase Auth (+ is_admin) → redirige a /admin/encuentros.
-    actions.js           # Server Actions: CRUD encuentros/formularios/secciones/preguntas/respuestas.
+    page.js              # (client) Login Supabase Auth (+ is_admin) → redirige a /admin/dashboard.
+    actions.js           # Server Actions: CRUD encuentros/formularios/secciones/preguntas/respuestas + acreditación + plantillas.
+    dashboard/
+      page.js            # (server, requireAdmin) Dashboard data-oriented (getDashboardData).
+      DashboardView.jsx  # (client) stat cards + gráfico inscripciones/día + resumen por encuentro.
     encuentros/
       page.js            # (server, requireAdmin) Hub: lista/gestión de encuentros + cerrar sesión.
       EncuentrosManager.jsx  # (client) alta/edición/activar/borrar; links a Formulario y Respuestas.
@@ -90,8 +93,9 @@ public/                  # SVGs de ejemplo de create-next-app (sin usar en su ma
 ```
 
 Rutas públicas: `/` (landing) · `/inscribite` (inscripción del encuentro activo) · `/feedback/[id]`
-(encuesta de feedback de un encuentro). Admin: `/admin` (login) · `/admin/encuentros` (hub) ·
-`/admin/encuentros/[id]/formulario` · `/admin/encuentros/[id]/respuestas` (ambas con `?tipo`).
+(encuesta de feedback de un encuentro). Admin: `/admin` (login) · `/admin/dashboard` (landing
+data-oriented) · `/admin/encuentros` (hub) · `/admin/encuentros/[id]/{formulario,respuestas}` (con
+`?tipo`) · `/admin/encuentros/[id]/acreditacion` (check-in).
 
 ## Sistema de diseño
 

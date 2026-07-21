@@ -8,7 +8,7 @@ import { createClient } from "@/lib/supabase/client";
 
 const LOGO =
   "https://www.cejoptucuman.com/_next/static/media/cejop_brand_cropped.58e2cc0e.png";
-const DESTINO = "/admin/encuentros";
+const DESTINO = "/admin/dashboard";
 
 export default function AdminLogin() {
   const router = useRouter();
