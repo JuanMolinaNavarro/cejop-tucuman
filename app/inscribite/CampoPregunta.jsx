@@ -1,5 +1,7 @@
 "use client";
 
+import ComboboxLocalidad from "./ComboboxLocalidad";
+
 // Renderiza el control adecuado según el tipo de pregunta.
 // Reutiliza las clases del sistema de diseño: btn-toggle, priority-btn, badge-rank.
 export default function CampoPregunta({ pregunta, valor, onChange, error }) {
@@ -54,6 +56,11 @@ export default function CampoPregunta({ pregunta, valor, onChange, error }) {
           placeholder={cfg.placeholder || ""}
           className={`${inputBase} resize-none`}
         />
+      );
+
+    case "localidad":
+      return (
+        <ComboboxLocalidad value={valor} onChange={onChange} error={Boolean(error)} />
       );
 
     case "boolean":

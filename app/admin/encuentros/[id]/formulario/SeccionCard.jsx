@@ -14,6 +14,7 @@ import {
   CircleDot,
   ListChecks,
   ListOrdered,
+  MapPin,
 } from "lucide-react";
 import { TIPOS_PREGUNTA } from "@/lib/forms/tipos";
 import PreguntaCard from "./PreguntaCard";
@@ -27,6 +28,7 @@ const ICONOS = {
   CircleDot,
   ListChecks,
   ListOrdered,
+  MapPin,
 };
 
 export default function SeccionCard({

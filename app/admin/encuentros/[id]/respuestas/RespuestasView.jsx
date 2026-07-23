@@ -7,11 +7,16 @@ import {
   Download,
   Search,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   BarChart3,
   ListChecks,
   Trash2,
+  FileSpreadsheet,
+  Users,
 } from "lucide-react";
 import { computarAnalisis, valorATexto } from "@/lib/forms/analisis";
+import { Barra, DonutChart, BarrasVerticales } from "@/app/admin/charts";
 import {
   toggleConfirmadoRespuesta,
   eliminarRespuesta,
@@ -36,42 +41,43 @@ function Switch({ on, onClick, disabled }) {
   );
 }
 
-function Barra({ label, count, percent, color = "#2c46bf", sufijo }) {
-  return (
-    <div className="space-y-1 text-xs">
-      <div className="flex justify-between items-center gap-2">
-        <span className="text-gray-300 truncate">{label}</span>
-        <span className="font-encode text-gray-400 font-bold shrink-0">
-          {count} {sufijo || ""} · {percent}%
-        </span>
-      </div>
-      <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
-        <div
-          className="h-full rounded-full"
-          style={{ width: `${percent}%`, backgroundColor: color }}
-        />
-      </div>
-    </div>
-  );
-}
-
 function AnalisisItem({ a }) {
+  // Selección única / booleano con 2-8 opciones usadas → torta. La múltiple NO
+  // (sus porcentajes suman > 100%); muchas opciones tampoco (torta ilegible).
+  const opcionesConDatos =
+    a.modo === "opciones" && !a.multiple ? a.opciones.filter((o) => o.count > 0) : [];
+  const opcionesComoTorta = opcionesConDatos.length >= 2 && opcionesConDatos.length <= 8;
   return (
-    <div className="bg-[#131535] border border-white/10 rounded-xl p-5 shadow-xl">
-      <div className="flex items-center justify-between gap-2 mb-4 pb-2 border-b border-white/10">
-        <h3 className="font-montserrat font-bold text-sm text-white">{a.etiqueta}</h3>
-        <span className="text-[10px] font-encode text-gray-500 uppercase tracking-wider shrink-0">
+    <div className="bg-[#131535] border border-white/10 rounded-xl p-5 shadow-xl h-80 flex flex-col">
+      <div className="flex items-start justify-between gap-2 mb-4 pb-2 border-b border-white/10 shrink-0">
+        <h3
+          className="font-montserrat font-bold text-sm text-white leading-tight line-clamp-2"
+          title={a.etiqueta}
+        >
+          {a.etiqueta}
+        </h3>
+        <span className="text-[10px] font-encode text-gray-500 uppercase tracking-wider shrink-0 mt-0.5">
           {a.total} resp.
         </span>
       </div>
 
-      {a.modo === "opciones" && (
-        <div className="space-y-3">
-          {a.opciones.map((o) => (
-            <Barra key={o.id} label={o.label} count={o.count} percent={o.percent} />
-          ))}
-        </div>
-      )}
+      <div className="flex-1 min-h-0 overflow-y-auto pr-1">
+      {a.modo === "opciones" &&
+        (opcionesComoTorta ? (
+          <DonutChart
+            data={opcionesConDatos.map((o) => ({
+              valor: o.label,
+              count: o.count,
+              percent: o.percent,
+            }))}
+          />
+        ) : (
+          <div className="space-y-3">
+            {a.opciones.map((o) => (
+              <Barra key={o.id} label={o.label} count={o.count} percent={o.percent} />
+            ))}
+          </div>
+        ))}
 
       {a.modo === "ranking" && (
         <div className="space-y-3">
@@ -93,40 +99,93 @@ function AnalisisItem({ a }) {
       )}
 
       {a.modo === "numero" && (
-        <div className="grid grid-cols-3 gap-3 text-center">
-          {[
-            { l: "Mínimo", v: a.min },
-            { l: "Promedio", v: a.promedio },
-            { l: "Máximo", v: a.max },
-          ].map((s) => (
-            <div key={s.l} className="bg-white/5 rounded-lg py-3">
-              <span className="block text-[10px] font-encode text-gray-500 uppercase">
-                {s.l}
+        <div className="space-y-4">
+          <div className="grid grid-cols-3 gap-3 text-center">
+            {[
+              { l: "Mínimo", v: a.min },
+              { l: "Promedio", v: a.promedio },
+              { l: "Máximo", v: a.max },
+            ].map((s) => (
+              <div key={s.l} className="bg-white/5 rounded-lg py-3">
+                <span className="block text-[10px] font-encode text-gray-500 uppercase">
+                  {s.l}
+                </span>
+                <span className="block font-montserrat font-black text-xl text-white mt-1">
+                  {s.v ?? "—"}
+                </span>
+              </div>
+            ))}
+          </div>
+          {a.distribucion && a.distribucion.length > 1 && (
+            <div className="space-y-3">
+              <span className="text-[10px] font-encode text-gray-500 uppercase tracking-widest">
+                Distribución
               </span>
-              <span className="block font-montserrat font-black text-xl text-white mt-1">
-                {s.v ?? "—"}
-              </span>
+              <BarrasVerticales data={a.distribucion} />
             </div>
-          ))}
-        </div>
-      )}
-
-      {a.modo === "texto" && (
-        <div className="space-y-2 max-h-64 overflow-y-auto">
-          {a.textos.length === 0 ? (
-            <p className="text-xs text-gray-500">Sin respuestas.</p>
-          ) : (
-            a.textos.map((t, i) => (
-              <p
-                key={i}
-                className="text-xs text-gray-300 bg-white/5 rounded-lg px-3 py-2 leading-relaxed"
-              >
-                {t}
-              </p>
-            ))
           )}
         </div>
       )}
+
+      {a.modo === "texto" &&
+        (a.mostrar === "frecuencias" ? (
+          a.frecuencias.length >= 2 && a.frecuencias.length <= 8 ? (
+            <DonutChart data={a.frecuencias} />
+          ) : (
+            <div className="space-y-3">
+              {a.frecuencias.slice(0, 15).map((f) => (
+                <Barra key={f.valor} label={f.valor} count={f.count} percent={f.percent} />
+              ))}
+              {a.frecuencias.length > 15 && (
+                <p className="text-[11px] text-gray-500 pt-1">
+                  y {a.frecuencias.length - 15} valores más…
+                </p>
+              )}
+            </div>
+          )
+        ) : (
+          <div className="space-y-2">
+            {a.textos.length === 0 ? (
+              <p className="text-xs text-gray-500">Sin respuestas.</p>
+            ) : (
+              a.textos.map((t, i) => (
+                <p
+                  key={i}
+                  className="text-xs text-gray-300 bg-white/5 rounded-lg px-3 py-2 leading-relaxed break-words"
+                >
+                  {t}
+                </p>
+              ))
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Controles de paginación (Anterior / N de M / Siguiente).
+function Paginador({ pagina, total, onCambio }) {
+  if (total <= 1) return null;
+  return (
+    <div className="flex items-center gap-2 text-xs font-encode shrink-0">
+      <button
+        onClick={() => onCambio(pagina - 1)}
+        disabled={pagina <= 1}
+        className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-300 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors flex items-center gap-1"
+      >
+        <ChevronLeft size={13} /> Anterior
+      </button>
+      <span className="text-gray-500 tabular-nums px-1 whitespace-nowrap">
+        {pagina} / {total}
+      </span>
+      <button
+        onClick={() => onCambio(pagina + 1)}
+        disabled={pagina >= total}
+        className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-300 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors flex items-center gap-1"
+      >
+        Siguiente <ChevronRight size={13} />
+      </button>
     </div>
   );
 }
@@ -148,6 +207,13 @@ export default function RespuestasView({
   const [expandida, setExpandida] = useState(null);
   const [pending, startTransition] = useTransition();
 
+  // Análisis: búsqueda de contactos + paginación (tabla y cards)
+  const [contactoQuery, setContactoQuery] = useState("");
+  const [pagContacto, setPagContacto] = useState(1);
+  const [pagCards, setPagCards] = useState(1);
+  const CONTACTOS_POR_PAGINA = 8;
+  const CARDS_POR_PAGINA = 6;
+
   const filtradas = respuestas.filter((r) => {
     const q = busqueda.toLowerCase();
     return (
@@ -162,6 +228,42 @@ export default function RespuestasView({
   const analisis = useMemo(
     () => computarAnalisis(preguntas, respuestas),
     [preguntas, respuestas]
+  );
+
+  // Cards de análisis: solo lo analizable. Nombre/teléfono/email (campos de
+  // contacto y correos) van a la tabla de contactos, no a una card.
+  const analisisCards = useMemo(
+    () => analisis.filter((a) => !a.contacto && a.tipo !== "email"),
+    [analisis]
+  );
+
+  // Contactos filtrados por la búsqueda por nombre (también email/teléfono).
+  const contactosFiltrados = useMemo(() => {
+    const q = contactoQuery.trim().toLowerCase();
+    if (!q) return respuestas;
+    return respuestas.filter(
+      (r) =>
+        (r.nombre ?? "").toLowerCase().includes(q) ||
+        (r.email ?? "").toLowerCase().includes(q) ||
+        (r.telefono ?? "").includes(q)
+    );
+  }, [respuestas, contactoQuery]);
+
+  const totalPagContactos = Math.max(
+    1,
+    Math.ceil(contactosFiltrados.length / CONTACTOS_POR_PAGINA)
+  );
+  const pagContactoActual = Math.min(pagContacto, totalPagContactos);
+  const contactosPagina = contactosFiltrados.slice(
+    (pagContactoActual - 1) * CONTACTOS_POR_PAGINA,
+    pagContactoActual * CONTACTOS_POR_PAGINA
+  );
+
+  const totalPagCards = Math.max(1, Math.ceil(analisisCards.length / CARDS_POR_PAGINA));
+  const pagCardsActual = Math.min(pagCards, totalPagCards);
+  const cardsPagina = analisisCards.slice(
+    (pagCardsActual - 1) * CARDS_POR_PAGINA,
+    pagCardsActual * CARDS_POR_PAGINA
   );
 
   const toggleConf = (r) => {
@@ -179,8 +281,18 @@ export default function RespuestasView({
     startTransition(() => eliminarRespuesta(r.id));
   };
 
-  const exportarCSV = () => {
-    const headers = ["Nombre", "Email", "Teléfono", "Fecha", "Confirmado", ...preguntas.map((p) => p.etiqueta)];
+  const nombreArchivo = () => (encuentro.nombre || "encuentro").replace(/\s+/g, "_");
+
+  // Tabla compartida por las exportaciones: contacto + una columna por pregunta.
+  const construirTabla = () => {
+    const headers = [
+      "Nombre",
+      "Email",
+      "Teléfono",
+      "Fecha",
+      "Confirmado",
+      ...preguntas.map((p, i) => p.etiqueta?.trim() || `Pregunta ${i + 1}`),
+    ];
     const filas = respuestas.map((r) => [
       r.nombre ?? "",
       r.email ?? "",
@@ -189,6 +301,11 @@ export default function RespuestasView({
       r.confirmado ? "Sí" : "No",
       ...preguntas.map((p) => valorATexto(p, r.respuestas?.[p.id])),
     ]);
+    return { headers, filas };
+  };
+
+  const exportarCSV = () => {
+    const { headers, filas } = construirTabla();
     const csv =
       "data:text/csv;charset=utf-8,﻿" +
       [headers, ...filas]
@@ -196,10 +313,26 @@ export default function RespuestasView({
         .join("\n");
     const link = document.createElement("a");
     link.href = encodeURI(csv);
-    link.download = `respuestas_${(encuentro.nombre || "encuentro").replace(/\s+/g, "_")}.csv`;
+    link.download = `respuestas_${nombreArchivo()}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const exportarXLSX = async () => {
+    const XLSX = await import("xlsx"); // carga bajo demanda
+    const { headers, filas } = construirTabla();
+    const ws = XLSX.utils.aoa_to_sheet([headers, ...filas]);
+    // ancho de columnas según el contenido más largo (con topes)
+    ws["!cols"] = headers.map((h, i) => ({
+      wch: Math.min(
+        50,
+        Math.max(12, h.length + 2, ...filas.map((f) => String(f[i] ?? "").length))
+      ),
+    }));
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Respuestas");
+    XLSX.writeFile(wb, `respuestas_${nombreArchivo()}.xlsx`);
   };
 
   return (
@@ -273,13 +406,24 @@ export default function RespuestasView({
                     <span className="font-montserrat font-bold text-base block text-green-400 mt-0.5">{confirmados}</span>
                   </div>
                 </div>
-                <button
-                  onClick={exportarCSV}
-                  disabled={respuestas.length === 0}
-                  className="bg-[#2c46bf] hover:bg-[#2c46bf]/90 disabled:opacity-40 text-white font-encode font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-xl transition-colors flex items-center gap-2 shrink-0"
-                >
-                  <Download size={14} /> CSV
-                </button>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    onClick={exportarXLSX}
+                    disabled={respuestas.length === 0}
+                    className="bg-[#2c46bf] hover:bg-[#2c46bf]/90 disabled:opacity-40 text-white font-encode font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-xl transition-colors flex items-center gap-2"
+                    title="Descargar como Excel (.xlsx)"
+                  >
+                    <FileSpreadsheet size={14} /> Excel
+                  </button>
+                  <button
+                    onClick={exportarCSV}
+                    disabled={respuestas.length === 0}
+                    className="bg-white/5 hover:bg-white/10 border border-white/10 disabled:opacity-40 text-gray-300 hover:text-white font-encode font-bold text-xs uppercase tracking-wider px-4 py-3 rounded-xl transition-colors flex items-center gap-2"
+                    title="Descargar como CSV"
+                  >
+                    <Download size={14} /> CSV
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -379,10 +523,108 @@ export default function RespuestasView({
                 </div>
               </>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {analisis.map((a) => (
-                  <AnalisisItem key={a.preguntaId} a={a} />
-                ))}
+              <div className="space-y-8">
+                {/* Contactos: nombre/teléfono/email en una sola tabla */}
+                <section className="space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                      <Users size={15} className="text-[#b7bfe7]" />
+                      <h3 className="font-montserrat font-bold text-sm text-white uppercase tracking-wide">
+                        Contactos
+                      </h3>
+                      <span className="text-[10px] font-encode text-gray-500 uppercase tracking-widest">
+                        {contactosFiltrados.length}
+                      </span>
+                    </div>
+                    <div className="relative sm:w-72">
+                      <input
+                        value={contactoQuery}
+                        onChange={(e) => {
+                          setContactoQuery(e.target.value);
+                          setPagContacto(1);
+                        }}
+                        placeholder="Buscar por nombre..."
+                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 pl-9 text-white focus:outline-none focus:border-[#2c46bf] transition-colors text-xs"
+                      />
+                      <Search className="absolute left-3 top-2.5 text-gray-400" size={13} />
+                    </div>
+                  </div>
+
+                  <div className="bg-[#131535] border border-white/10 rounded-xl overflow-hidden shadow-xl">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-xs border-collapse">
+                        <thead>
+                          <tr className="bg-white/5 border-b border-white/10 text-gray-400 uppercase font-encode tracking-wider text-[10px]">
+                            <th className="px-5 py-3 font-semibold">Nombre</th>
+                            <th className="px-5 py-3 font-semibold">Teléfono</th>
+                            <th className="px-5 py-3 font-semibold">Email</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/5 text-gray-300">
+                          {contactosPagina.map((r) => (
+                            <tr key={r.id} className="hover:bg-white/5 transition-colors">
+                              <td className="px-5 py-2.5 font-montserrat font-bold text-white">
+                                {r.nombre || "—"}
+                              </td>
+                              <td className="px-5 py-2.5">{r.telefono || "—"}</td>
+                              <td className="px-5 py-2.5">{r.email || "—"}</td>
+                            </tr>
+                          ))}
+                          {contactosPagina.length === 0 && (
+                            <tr>
+                              <td
+                                colSpan={3}
+                                className="px-5 py-8 text-center text-gray-500 font-encode uppercase tracking-wide"
+                              >
+                                Sin coincidencias.
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end">
+                    <Paginador
+                      pagina={pagContactoActual}
+                      total={totalPagContactos}
+                      onCambio={setPagContacto}
+                    />
+                  </div>
+                </section>
+
+                {/* Análisis por pregunta: cards de tamaño fijo, paginadas */}
+                <section className="space-y-4 border-t border-white/10 pt-6">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                      <BarChart3 size={15} className="text-[#b7bfe7]" />
+                      <h3 className="font-montserrat font-bold text-sm text-white uppercase tracking-wide">
+                        Análisis por pregunta
+                      </h3>
+                      <span className="text-[10px] font-encode text-gray-500 uppercase tracking-widest">
+                        {analisisCards.length}
+                      </span>
+                    </div>
+                    <Paginador
+                      pagina={pagCardsActual}
+                      total={totalPagCards}
+                      onCambio={setPagCards}
+                    />
+                  </div>
+
+                  {analisisCards.length === 0 ? (
+                    <div className="bg-[#131535] border border-white/10 rounded-xl p-10 text-center text-gray-500 font-encode uppercase tracking-wide text-xs">
+                      No hay preguntas para analizar (solo campos de contacto).
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                      {cardsPagina.map((a) => (
+                        <AnalisisItem key={a.preguntaId} a={a} />
+                      ))}
+                    </div>
+                  )}
+                </section>
               </div>
             )}
           </>

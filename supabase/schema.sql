@@ -64,7 +64,7 @@ create table if not exists public.preguntas (
   formulario_id bigint not null references public.formularios(id) on delete cascade, -- denormalizado
   tipo          text not null check (tipo in (
                   'texto_corto','texto_largo','email','numero','boolean',
-                  'seleccion_unica','seleccion_multiple','ranking')),
+                  'seleccion_unica','seleccion_multiple','ranking','localidad')),
   etiqueta      text not null,
   ayuda         text,
   requerido     boolean not null default false,

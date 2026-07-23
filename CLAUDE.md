@@ -49,14 +49,18 @@ app/
   inscribite/
     page.js              # (server) trae encuentro activo + form 'inscripcion' publicado; "cerrado" si no hay.
     RenderizadorFormulario.jsx · CampoPregunta.jsx  # (client) wizard dinámico por secciones (recibe tipo).
+    ComboboxLocalidad.jsx  # (client) combobox buscable de localidades de Tucumán (tipo 'localidad').
     actions.js           # (server) enviarInscripcion(formularioId, valores): genérico, sirve inscripción y feedback.
   feedback/[id]/page.js  # (server, público) encuesta de feedback (form 'feedback' publicado) del encuentro [id].
   admin/
     page.js              # (client) Login Supabase Auth (+ is_admin) → redirige a /admin/dashboard.
     actions.js           # Server Actions: CRUD encuentros/formularios/secciones/preguntas/respuestas + acreditación + plantillas.
+    charts.jsx           # (client) Gráficos custom compartidos (sin lib): Barra, DonutChart (torta SVG),
+                         #   BarrasVerticales (histograma), PALETA. Usados por RespuestasView y DashboardView.
     dashboard/
       page.js            # (server, requireAdmin) Dashboard data-oriented (getDashboardData).
-      DashboardView.jsx  # (client) stat cards + gráfico inscripciones/día + resumen por encuentro.
+      DashboardView.jsx  # (client) stat cards + gráfico inscripciones/día + DEMOGRAFÍA agregada de todos los
+                         #   encuentros (edad→barras, localidad→torta) + resumen por encuentro.
     encuentros/
       page.js            # (server, requireAdmin) Hub: lista/gestión de encuentros + cerrar sesión.
       EncuentrosManager.jsx  # (client) alta/edición/activar/borrar; links a Formulario y Respuestas.
@@ -66,7 +70,11 @@ app/
         SeccionCard.jsx · PreguntaCard.jsx · ConfigEditor.jsx  # (client) editor por sección/pregunta/tipo.
       [id]/respuestas/    # ?tipo=inscripcion|feedback (default inscripcion)
         page.js          # (server) trae formulario (del tipo) + respuestas.
-        RespuestasView.jsx  # (client) tabla (confirmar/borrar/CSV) + análisis genérico por pregunta.
+        RespuestasView.jsx  # (client) 2 tabs: "Respuestas" (tabla confirmar/borrar/CSV+Excel) y "Análisis"
+                            #   (tabla de Contactos nombre/tel/email con búsqueda+paginación + cards de análisis
+                            #   por pregunta, tamaño fijo h-80 y paginadas; contacto/email excluidos de las cards).
+                            #   Gráficos (de charts.jsx): categóricos con 2-8 valores → torta (localidad, selección
+                            #   única, sí/no); número → barras verticales; múltiple/ranking/>8 → barras horizontales.
       [id]/acreditacion/
         page.js          # (server) inscriptos (respuestas) + acreditaciones del encuentro.
         AcreditacionView.jsx  # (client) check-in: marcar presente, walk-ins, contadores, CSV.
@@ -81,14 +89,22 @@ lib/supabase/
     auth.js              # requireAdmin() (redirige) y verificarAdmin() (para actions) + esAdmin().
     proxy.js             # updateSession(): refresca sesión y protege /admin. Usado por proxy.js raíz.
 lib/forms/               # Núcleo del constructor de formularios dinámicos (JS puro, cliente+servidor)
-    tipos.js             # Catálogo de los 8 tipos de pregunta (config, metadata, helpers de opción).
+    tipos.js             # Catálogo de los 9 tipos de pregunta (incluye 'localidad': combobox de Tucumán).
+                         #   config, metadata, helpers de opción. IDS_TIPOS valida en actions + CHECK del schema.
     validation.js        # validarValor/validarValores (fuente de verdad) + construirSchema (Zod 4).
-    analisis.js          # computarAnalisis por pregunta (excluye campos de contacto) + valorATexto.
+    analisis.js          # computarAnalisis por pregunta + valorATexto. Helpers exportados reutilizables:
+                         #   agruparTexto (frecuencias con normalización), distribucionNumerica, esPreguntaEdad/
+                         #   esPreguntaLocalidad. Texto agrupa por clave normalizada (sin acentos, case-insensitive);
+                         #   localidad usa el catálogo de Tucumán (alias SMT/YB, nombre canónico).
+    localidades.js       # Catálogo de localidades de Tucumán + alias. normalizarClave/canonicalizarLocalidad/
+                         #   NOMBRES_LOCALIDADES. Reutilizable para dedupe del análisis y para un combobox.
     queries.js           # Lecturas server: formularios publicados/edición, encuentros, respuestas.
     plantillas.js        # Plantillas de sección reutilizables (ej. "Datos de contacto"). Insertables en el builder.
 proxy.js                 # Convención de Next 16 (ex-"middleware"). Env-guarded: no-op sin credenciales.
 supabase/
     schema.sql           # Esquema DINÁMICO (formularios/secciones/preguntas/respuestas) + RLS. Correr en el SQL Editor.
+    seed.sql             # Datos de prueba (respuestas + acreditaciones). Idempotente-ish; marca con @seed.cejop.
+    migracion_localidad.sql  # Migración: amplía el CHECK de preguntas.tipo para aceptar 'localidad'. Correr 1 vez.
 public/                  # SVGs de ejemplo de create-next-app (sin usar en su mayoría)
 ```
 

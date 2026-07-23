@@ -11,8 +11,11 @@ import {
   ArrowRight,
   LogOut,
   MessageSquare,
+  MapPin,
+  Cake,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { DonutChart, BarrasVerticales } from "@/app/admin/charts";
 
 const LOGO =
   "https://www.cejoptucuman.com/_next/static/media/cejop_brand_cropped.58e2cc0e.png";
@@ -52,6 +55,13 @@ export default function DashboardView({ data }) {
   const router = useRouter();
   const maxDia = Math.max(1, ...data.porDia.map((d) => d.count));
   const hayDatos = data.totalInscripciones > 0 || data.totalAcreditados > 0;
+  const demo = data.demografia ?? {
+    edad: null,
+    localidad: [],
+    totalEdad: 0,
+    totalLocalidad: 0,
+  };
+  const hayDemografia = demo.totalEdad > 0 || demo.totalLocalidad > 0;
 
   const cerrarSesion = async () => {
     try {
@@ -180,6 +190,67 @@ export default function DashboardView({ data }) {
             </p>
           )}
         </div>
+
+        {/* Demografía agregada de todos los encuentros */}
+        {hayDemografia && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            {/* Edad */}
+            <div className="bg-[#131535] border border-white/10 rounded-xl p-6 shadow-xl">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="font-montserrat font-bold text-xs text-white uppercase tracking-wider flex items-center gap-2">
+                  <Cake size={14} className="text-[#b7bfe7]" /> Edad de los inscriptos
+                </h3>
+                <span className="text-[10px] font-encode text-gray-500 uppercase tracking-widest">
+                  {demo.totalEdad} con dato
+                </span>
+              </div>
+              {demo.edad?.distribucion?.length ? (
+                <>
+                  <div className="grid grid-cols-3 gap-3 text-center mb-5">
+                    {[
+                      { l: "Mínima", v: demo.edad.min },
+                      { l: "Promedio", v: demo.edad.promedio },
+                      { l: "Máxima", v: demo.edad.max },
+                    ].map((s) => (
+                      <div key={s.l} className="bg-white/5 rounded-lg py-3">
+                        <span className="block text-[10px] font-encode text-gray-500 uppercase">
+                          {s.l}
+                        </span>
+                        <span className="block font-montserrat font-black text-2xl text-white mt-1">
+                          {s.v ?? "—"}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  <BarrasVerticales data={demo.edad.distribucion} />
+                </>
+              ) : (
+                <p className="text-center text-gray-500 text-xs font-encode uppercase tracking-wide py-10">
+                  Sin datos de edad todavía.
+                </p>
+              )}
+            </div>
+
+            {/* Localidad */}
+            <div className="bg-[#131535] border border-white/10 rounded-xl p-6 shadow-xl">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="font-montserrat font-bold text-xs text-white uppercase tracking-wider flex items-center gap-2">
+                  <MapPin size={14} className="text-[#b7bfe7]" /> Localidad de los inscriptos
+                </h3>
+                <span className="text-[10px] font-encode text-gray-500 uppercase tracking-widest">
+                  {demo.totalLocalidad} con dato
+                </span>
+              </div>
+              {demo.localidad.length ? (
+                <DonutChart data={demo.localidad} />
+              ) : (
+                <p className="text-center text-gray-500 text-xs font-encode uppercase tracking-wide py-10">
+                  Sin datos de localidad todavía.
+                </p>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Resumen por encuentro */}
         <div className="bg-[#131535] border border-white/10 rounded-xl overflow-hidden shadow-xl">
