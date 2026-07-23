@@ -4,10 +4,10 @@ export default function Footer() {
   return (
     <footer className="bg-[#0b0b14] text-white/50 font-source pt-16 pb-10 border-t border-white/5">
       <div className="section-container">
-        
+
         {/* Top 3 Columns Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-16 pb-12">
-          
+
           {/* Column 1: Brand Info */}
           <div className="flex flex-col gap-4">
             <div className="w-44 h-12 relative opacity-90">
@@ -110,45 +110,12 @@ export default function Footer() {
               </li>
             </ul>
           </div>
-          
+
         </div>
 
         {/* Divider and Bottom Row */}
         <div className="border-t border-white/5 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-white/40 font-source">
           <p>© 2026 CEJOP Tucumán. Todos los derechos reservados.</p>
-          
-          <div className="flex items-center gap-2">
-            <span>Desarrollado por</span>
-            <a
-              href="https://vitrio.tech?utm_source=cejoptucuman&utm_medium=landing-footer&utm_campaign=powered-by"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-white hover:text-white/80 transition-colors inline-flex items-center gap-1 font-semibold"
-            >
-              {/* Vitrio Emblem: Styled Purple/Blue Slash & Red Slash */}
-              <svg
-                width="20"
-                height="12"
-                viewBox="0 0 20 12"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-3 w-auto"
-              >
-                <path
-                  d="M5 11L10 1"
-                  stroke="#5267c9"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                />
-                <path
-                  d="M10 11L15 1"
-                  stroke="#ef4444"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </a>
-          </div>
         </div>
 
       </div>
